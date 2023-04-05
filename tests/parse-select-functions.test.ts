@@ -489,4 +489,87 @@ describe('Test parse select with functions', () => {
         }
         assert.deepStrictEqual(actual.right, expected);
     });
+
+    it(`WHERE COALESCE (:ids, null) is null or id in (:ids)`, async () => {
+        const sql = `
+        SELECT id from mytable1
+        WHERE id in (:ids) or COALESCE (:ids, null) is null
+        `
+        const processedSql = `
+        SELECT id from mytable1
+        WHERE id in (:ids) or COALESCE (:ids, null) is null
+        `;
+
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: processedSql,
+            queryType: 'Select',
+            multipleRowsResult: true,
+            columns: [
+                {
+                    name: 'id',
+                    dbtype: 'int',
+                    notNull: true
+                }
+            ],
+            parameters: [
+                {
+                    name: 'ids',
+                    columnType: 'int[]',
+                    notNull: false
+                },
+                {
+                    name: 'ids',
+                    columnType: 'int[]',
+                    notNull: false
+                }
+            ]
+
+        }
+
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    });
+
+    it(`WHERE COALESCE (:ids, null) is null`, async () => {
+        const sql = `
+        SELECT id from mytable1
+        WHERE COALESCE (:ids, null) is null
+        `
+        const processedSql = `
+        SELECT id from mytable1
+        WHERE COALESCE (:ids, null) is null
+        `;
+
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: processedSql,
+            queryType: 'Select',
+            multipleRowsResult: true,
+            columns: [
+                {
+                    name: 'id',
+                    dbtype: 'int',
+                    notNull: true
+                }
+            ],
+            parameters: [
+                {
+                    name: 'ids',
+                    columnType: 'int[]',
+                    notNull: false
+                }
+            ]
+
+        }
+
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    });
+
+
 });
