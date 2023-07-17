@@ -80,6 +80,8 @@ const updateResult = await updateProduct(...
 
 [INSERT](/docs/insert.md)
 
+[SELECT DISTINCT](/docs/select-distinct.md)
+
 [IN/NOT IN Clause](/docs/in_clause.md)
 
 [MySQL FUNCTIONS](/docs/functions.md)
