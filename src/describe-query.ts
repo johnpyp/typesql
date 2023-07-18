@@ -5,7 +5,7 @@ import { Either, isLeft, right, left } from "fp-ts/lib/Either";
 import { ColumnSchema } from "./mysql-query-analyzer/types";
 import { MySqlType, InferType } from "./mysql-mapping";
 
-export function describeSql(dbSchema: ColumnSchema[], sql: string): SchemaDef {
+export function describeSql(dbSchema: ColumnSchema[], sql: string, pipeAsConcat: boolean): SchemaDef {
     const { sql: processedSql, namedParameters } = preprocessSql(sql);
     const queryInfo = extractQueryInfo(sql, dbSchema);
     if (queryInfo.kind == 'Select') {
@@ -140,7 +140,7 @@ export async function parseSql(client: DbClient, sql: string): Promise<Either<Ty
         return left(dbSchema.left);
     }
     try {
-        const result = describeSql(dbSchema.right, sql);
+        const result = describeSql(dbSchema.right, sql, false);
         return right(result);
     }
     catch (e: any) {

@@ -999,7 +999,7 @@ function walkExpr(context: InferenceContext, expr: ExprContext): Type {
         walkExpr(context, exprLeft);
         const exprRight = expr.expr()[1];
         walkExpr(context, exprRight);
-        return freshVar(expr.text, 'tinyint');
+        return freshVar(expr.text, 'varchar');
     }
     throw Error('invalid type');
 

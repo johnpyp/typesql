@@ -86,12 +86,20 @@ function inferNotNullExpr(expr: ExprContext, dbSchema: ColumnSchema[], fromColum
     if (expr instanceof ExprIsContext) {
         return inferNotNullExprIs(expr, dbSchema, fromColumns);
     }
+    if (expr instanceof ExprOrContext) {
+        return inferNotNullExprOr(expr, dbSchema, fromColumns);
+    }
     throw Error('Error during column null inference');
 }
 
 function inferNotNullExprIs(exprIs: ExprIsContext, dbSchema: ColumnSchema[], fromColumns: ColumnDef[]): boolean {
     const boolPri = exprIs.boolPri();
     return inferNotNullBoolPri(boolPri, dbSchema, fromColumns)
+}
+
+function inferNotNullExprOr(exprOr: ExprOrContext, dbSchema: ColumnSchema[], fromColumns: ColumnDef[]): boolean {
+    const exprList = exprOr.expr()
+    return exprList.every(expr => inferNotNullExpr(expr, dbSchema, fromColumns));
 }
 
 function inferNotNullBoolPri(boolPri: BoolPriContext, dbSchema: ColumnSchema[], fromColumns: ColumnDef[]): boolean {

@@ -489,4 +489,32 @@ describe('Test parse select with functions', () => {
         }
         assert.deepStrictEqual(actual.right, expected);
     });
+    //PIPES_AS_CONCAT
+    //https://database.guide/how-to-enable-the-pipe-concatenation-operator-in-mysql/
+    //https://github.com/mikeczabator/check_sql_mode_pipes_as_concat/blob/master/check_sql_mode_pipes_as_concat.sql
+    it(`SELECT name || '-' || name as result FROM mytable2`, async () => {
+        const sql = `
+        SELECT name || '-' || name as result FROM mytable2
+        `
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql,
+            queryType: 'Select',
+            multipleRowsResult: true,
+            columns: [
+                {
+                    name: 'result',
+                    dbtype: 'varchar',
+                    notNull: false
+                }
+            ],
+            parameters: []
+
+        }
+
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    });
 });
