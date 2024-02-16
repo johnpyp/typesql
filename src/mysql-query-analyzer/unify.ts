@@ -161,7 +161,7 @@ function getBestPossibleType(type1: InferType, type2: InferType, max?: boolean, 
     }
 
     // Is possible to convert to date to datetime
-    const dateTypeOrder: InferType[] = ['date', 'datetime'];
+    const dateTypeOrder: InferType[] = ['date', 'datetime', 'varchar'];
     const indexDateType1 = dateTypeOrder.indexOf(type1);
     const indexDateType2 = dateTypeOrder.indexOf(type2);
     if (indexDateType1 != -1 && indexDateType2 != -1) {

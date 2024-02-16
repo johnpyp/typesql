@@ -474,6 +474,140 @@ describe('Test parse select with functions', () => {
         assert.deepStrictEqual(actual.right, expected);
     })
 
+    it(`SELECT DATE('2024-01-11') as adate`, async () => {
+        const sql = `SELECT DATE('2024-01-11') as adate`
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: `SELECT DATE('2024-01-11') as adate`,
+            queryType: 'Select',
+            multipleRowsResult: false,
+            columns: [
+                {
+                    columnName: 'adate',
+                    type: 'date',
+                    notNull: true,
+                    table: ''
+                }
+            ],
+            parameters: []
+
+        }
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    })
+
+    it(`SELECT DATE(:d1) as adate`, async () => {
+        const sql = `SELECT DATE(:d1) as adate`
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: `SELECT DATE(?) as adate`,
+            queryType: 'Select',
+            multipleRowsResult: false,
+            columns: [
+                {
+                    columnName: 'adate',
+                    type: 'date',
+                    notNull: true,
+                    table: ''
+                }
+            ],
+            parameters: [
+                {
+                    name: 'd1',
+                    columnType: 'date',
+                    notNull: true
+                },
+            ]
+
+        }
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    })
+
+    it(`SELECT DATE(concat(:y, '-', :m, '-01')) as adate`, async () => {
+        const sql = `SELECT DATE(concat(:y, '-', :m, '-01')) as adate`
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: `SELECT DATE(concat(?, '-', ?, '-01')) as adate`,
+            queryType: 'Select',
+            multipleRowsResult: false,
+            columns: [
+                {
+                    columnName: 'adate',
+                    type: 'date',
+                    notNull: true,
+                    table: ''
+                }
+            ],
+            parameters: [
+                {
+                    name: 'y',
+                    columnType: 'varchar',
+                    notNull: true
+                },
+                {
+                    name: 'm',
+                    columnType: 'varchar',
+                    notNull: true
+                }
+            ]
+
+        }
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    })
+
+    it(`SELECT DATE(concat(:y, '-', lpad(:m, 2, '0'), '-01')) as adate WHERE :y >= 2020 and :m > 0`, async () => {
+        const sql = `SELECT DATE(concat(:y, '-', lpad(:m, 2, '0'), '-01')) as adate WHERE :y >= 2020 and :m > 0`
+        const actual = await parseSql(client, sql);
+        const expected: SchemaDef = {
+            sql: `SELECT DATE(concat(?, '-', lpad(?, 2, '0'), '-01')) as adate WHERE ? >= 2020 and ? > 0`,
+            queryType: 'Select',
+            multipleRowsResult: false,
+            columns: [
+                {
+                    columnName: 'adate',
+                    type: 'date',
+                    notNull: true,
+                    table: ''
+                }
+            ],
+            parameters: [
+                {
+                    name: 'y',
+                    columnType: 'int',
+                    notNull: true
+                },
+                {
+                    name: 'm',
+                    columnType: 'int',
+                    notNull: true
+                },
+                {
+                    name: 'y',
+                    columnType: 'int',
+                    notNull: true
+                },
+                {
+                    name: 'm',
+                    columnType: 'int',
+                    notNull: true
+                }
+            ]
+
+        }
+        if (isLeft(actual)) {
+            assert.fail(`Shouldn't return an error: ` + actual.left.description);
+        }
+        assert.deepStrictEqual(actual.right, expected);
+    })
+
     it('SELECT PERIOD_ADD(:p1, :p2) as add, PERIOD_DIFF(:p1, :p2) as diff', async () => {
         const sql = `SELECT PERIOD_ADD(:p1, :p2) as add_result, PERIOD_DIFF(:p1, :p2) as diff_result`
         const actual = await parseSql(client, sql);
